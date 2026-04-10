@@ -1,9 +1,16 @@
 // app/page.tsx
+
+"use client"; // at the very top, even if the rest is server‑sid
+import { useState } from "react";
+import Login from "@/app/components/login/page";
 import Image from "next/image";
 import Link from "next/link";
 
 
 export default function Home() {
+
+  const [showLogin, setShowLogin] = useState(false);
+
   const activities = [
     { title: "Island Hopping", img: "https://placehold.co/230x304" },
     { title: "Trekking", img: "https://placehold.co/230x304" },
@@ -52,11 +59,17 @@ export default function Home() {
             Plan smarter trips across the Philippines with AI-powered itineraries tailored to your budget, time, and travel style.
           </p>
 
-          <Link href="/login">
-            <button className="mt-8 px-8 py-3 rounded-full bg-white/5 backdrop-blur-md border border-white/30 text-white text-base font-semibold tracking-wider  hover:bg-white/20 transition-all duration-300">
+          
+            <button 
+              onClick={() => {
+                console.log("Start Planning clicked",showLogin);
+                setShowLogin(true)
+
+              }}
+              className="mt-8 px-8 py-3 rounded-full bg-white/5 backdrop-blur-md border border-white/30 text-white text-base font-semibold tracking-wider  hover:bg-white/20 transition-all duration-300">
               Start Planning
             </button>
-          </Link>
+          
         </div>
       </section>
 
@@ -489,6 +502,12 @@ export default function Home() {
       <footer className="bg-[#40513B] text-white py-6 text-center">
         <p>&copy; 2026 PhiliFinds. All rights reserved.</p>
       </footer>
+
+
+
+      {/* Login overlay */}
+      {showLogin && <Login onClose={() => setShowLogin(false)} />}
+      
     </div>
   );
 }
