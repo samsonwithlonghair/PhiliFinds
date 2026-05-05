@@ -6,12 +6,18 @@ import Login from "@/app/components/login/page";
 import Signup from "@/app/components/signup/page";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/dist/client/components/navigation";
 
 const Header: React.FC = () => {
-
+  const pathname = usePathname();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+ // Hide this header only on dashboard routes
+  const showHeader = !pathname.startsWith("/dashboard");
+
+  if (!showHeader) return null;
 
   return (
     <header className="fixed top-0 left-0 w-full h-20 bg-white shadow-md flex items-center justify-between py-4 px-10 z-50">
@@ -136,7 +142,7 @@ const Header: React.FC = () => {
                 setShowSignup(true)
 
               }}
-          className="px-5 py-2 rounded-full bg-stone-700 text-lime-100 hover:bg-stone-800 transition">
+          className="px-5 py-2 rounded-full bg-[#40513B] text-white hover:bg-[#] transition">
             
           Sign Up
         </button>

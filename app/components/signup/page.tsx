@@ -29,7 +29,7 @@ export default function Signup({ onClose }: { onClose: () => void }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/builder`,
+        redirectTo: `${window.location.origin}/dashboard`, // landing after Google auth
       },
     });
 
