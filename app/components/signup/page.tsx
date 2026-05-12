@@ -11,18 +11,34 @@ export default function Signup({ onClose }: { onClose: () => void }) {
   const [password, setPassword] = useState("");
 
   const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({
+    const {data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       alert(error.message);
-    } else {
-      alert("Account created!");
-      router.push("/login");
-      onClose();
+      return;
+    } 
+
+    const user = data.user;
+
+    if (user) {
+     // CREATE PROFILE ROW
+      await supabase.from("profiles").insert([
+      {
+        id: user.id,
+        email: user.email,
+        username: email.split("@")[0],
+        avatar: email.charAt(0).toUpperCase(),
+        },
+      ]);
     }
+
+    alert("Account created!");
+    router.push("/login");
+    onClose();
+    
   };
 
   const handleGoogleSignIn = async () => {

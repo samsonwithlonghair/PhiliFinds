@@ -1,131 +1,389 @@
-// app/dashboard/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardNavbar from "../components/DashboardHeader";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any | null>(null);
+  const [profile, setProfile] = useState<any | null>(null);
 
+  // LIVE TIME
+  const [time, setTime] = useState(new Date());
+
+  // WEATHER STATE
+  const [weather, setWeather] = useState<any | null>(null);
+
+  // CALENDAR STATE
+  const [currentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<number | null>(
+    new Date().getDate()
+  );
+ useEffect(() => {
+  const getUserProfile = async () => {
+    const { data: authData } = await supabase.auth.getUser();
+
+    if (!authData.user) return;
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authData.user.id)
+      .single();
+
+    if (!error) {
+      setProfile(profile);
+    }
+  };
+
+  getUserProfile();
+}, []);
+
+  // LIVE CLOCK
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-    };
-    getUser();
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // WEATHER FETCH (Open-Meteo - Cebu default coords)
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(
+          "https://api.open-meteo.com/v1/forecast?latitude=10.3157&longitude=123.8854&current_weather=true"
+        );
+        const data = await res.json();
+        setWeather(data.current_weather);
+      } catch (err) {
+        console.error("Weather fetch failed:", err);
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
+
+  const uploadAvatar = async (file: File) => {
+    if (!profile) return;
+
+    const fileExt = file.name.split(".").pop();
+    const filePath = `${profile.id}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      console.error(uploadError);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    const publicUrl = data.publicUrl;
+
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", profile.id);
+
+    setProfile({ ...profile, avatar_url: publicUrl });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    await uploadAvatar(file);
+  };
+
+  // CALENDAR LOGIC
+  const daysInMonth = useMemo(() => {
+    return new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    ).getDate();
+  }, [currentDate]);
+
+  const firstDay = useMemo(() => {
+    return new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    ).getDay();
+  }, [currentDate]);
+
+  const calendarDays = useMemo(() => {
+    const days: (number | null)[] = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let d = 1; d <= daysInMonth; d++) days.push(d);
+    return days;
+  }, [daysInMonth, firstDay]);
+
+
+  // TRIP DATA (TEMP - replace later with Supabase)
+const trips = [
+  { status: "completed" },
+  { status: "completed" },
+  { status: "ongoing" },
+  { status: "upcoming" },
+  { status: "upcoming" },
+  { status: "upcoming" },
+];
+
+// SUMMARY CALCULATION
+const summary = useMemo(() => {
+  const total = trips.length;
+
+  const completed = trips.filter(t => t.status === "completed").length;
+  const ongoing = trips.filter(t => t.status === "ongoing").length;
+  const upcoming = trips.filter(t => t.status === "upcoming").length;
+
+  return { total, completed, ongoing, upcoming };
+}, []);
+
+// PERCENTAGES
+const completedPct = (summary.completed / summary.total) * 100;
+const ongoingPct = (summary.ongoing / summary.total) * 100;
+const upcomingPct = (summary.upcoming / summary.total) * 100;
 
   return (
     <>
-      {/* Dashboard header (navbar) */}
       <DashboardNavbar />
 
-      {/* Main dashboard content: bento grid */}
-      <div className="min-h-[calc(100vh-4rem)] bg-gray-50 pt-6">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-[#40513B] mb-6">
-            Your Dashboard
+      <section className="min-h-screen bg-[#f8f8f5] px-6 md:px-16 lg:px-24 py-10">
+        <div className="max-w-[1400px] mx-auto">
+
+          {/* GREETING */}
+          <h1 className="ml-36 mt-10 mb-20 text-3xl md:text-4xl font-bold font-['Playfair_Display'] tracking-[4px] text-stone-700 ">
+            Hello, {profile?.username || "Guest"}!
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* 1. User Profile */}
-            {user && (
-              <div className="md:col-span-1 rounded-2xl bg-white p-6 shadow-sm border border-gray-200 flex flex-col">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  User Profile
-                </h2>
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-12 w-12 rounded-full bg-[#40513B] text-white flex items-center justify-center font-semibold text-lg">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-800">
-                      {user.email?.split("@")[0]}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {user.email}
-                    </p>
-                  </div>
+          <div className="flex flex-col xl:flex-row gap-10 justify-center items-center xl:items-start">
+
+            {/* ================= LEFT SIDE ================= */}
+            <div className="relative w-full max-w-[697px] h-[954px]">
+
+              {/* PROFILE IMAGE */}
+              <img
+                src={profile?.avatar_url || "/dashboard-profile.png"}
+                alt="profile"
+                className="absolute w-[261px] h-[393px] left-0 top-0 rounded-[50px]
+                object-cover shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]"
+              />
+
+              {/* USER OVERLAY */}
+
+              <p className="absolute left-[34px] top-[18px] text-white text-lg font-sans tracking-widest hover:underline cursor-pointer drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)]">
+                @{profile?.username || profile?.full_name || "Guest"}
+              </p>
+
+              {/* TRIP OVERVIEW */}
+              <div className="absolute w-56 h-52 left-[283px] top-0 bg-[#EDF1D6] rounded-[50px]
+              shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]" />
+
+              <h2 className="absolute left-[319px] top-[15px] text-[#40513B] text-xl font-semibold tracking-widest">
+                Trip Overview
+              </h2>
+
+              {/* REAL DONUT CHART */}
+              <div className="absolute w-36 h-36 left-[325px] top-[39px]">
+
+                {/* DONUT SVG */}
+                <svg
+                  viewBox="0 0 160 160"
+                  className="w-full h-full -rotate-90"
+                >
+
+                  {/* BACKGROUND RING */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    fill="none"
+                    stroke="#EDF1D6"
+                    strokeWidth="16"
+                  />
+
+                  {/* COMPLETED */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    fill="none"
+                    stroke="#40513B"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeDasharray={`${completedPct * 3.64} 364`}
+                    strokeDashoffset="0"
+                  />
+
+                  {/* ONGOING */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    fill="none"
+                    stroke="#9DC08B"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeDasharray={`${ongoingPct * 3.64} 364`}
+                    strokeDashoffset={`-${completedPct * 3.64}`}
+                  />
+
+                  {/* UPCOMING */}
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="58"
+                    fill="none"
+                    stroke="#609966"
+                    strokeWidth="16"
+                    strokeLinecap="round"
+                    strokeDasharray={`${upcomingPct * 3.64} 364`}
+                    strokeDashoffset={`-${(completedPct + ongoingPct) * 3.64}`}
+                  />
+
+                </svg>
+
+                {/* CENTER CIRCLE */}
+                <div className="absolute inset-[24px] bg-[#EDF1D6] rounded-full flex flex-col items-center justify-center">
+
+                  <span className="text-[#40513B] text-xl font-semibold tracking-widest">
+                    {summary.total}
+                  </span>
+
+                  <span className="text-black/30 text-[10px] font-semibold tracking-wide">
+                    Total Trips
+                  </span>
+
                 </div>
-                <p className="text-sm text-gray-600 mt-auto">
-                  Manage your personal details and travel preferences here.
+
+              </div>
+
+              {/* UPCOMING CARD */}
+              <div className="absolute w-56 h-40 left-[283px] top-[228px] bg-white rounded-[50px]
+              shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+              flex flex-col items-center justify-center gap-2 text-center">
+
+                {/* TITLE */}
+                <h2 className="text-[#40513B] text-xl font-semibold tracking-widest">
+                  Upcoming Trips
+                </h2>
+
+                {/* ICON */}
+                <div className="w-20 h-20 flex items-center justify-center">
+                  <img
+                    src="/calendar.svg"
+                    alt="calendar icon"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+              </div>
+
+              {/* NIMNIM */}
+              <div className="absolute w-[513px] h-36 left-0 top-[415px]">
+                <div className="absolute w-[513px] h-36 bg-white rounded-[50px]
+                shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]" />
+
+                <img
+                  src="/nimnim.svg"
+                  className="absolute w-28 h-28 left-[34px] top-[19px] rounded-[20px]"
+                />
+
+                <div className="absolute left-[174px] top-[52px] flex items-center gap-2">
+                  
+               
+                  <img
+                    src="/shimmer.svg"
+                    alt="shimmer icon"
+                    className="w-7 h-7 object-contain"
+                  />
+
+                  <h2 className="text-[#40513B] text-3xl font-medium tracking-[3px] font-sourceserif4">
+                    Let Nimnim Plan
+                  </h2>
+                </div>
+              </div>
+
+            </div>
+
+            {/* ================= RIGHT SIDE ================= */}
+            <div className="relative w-[312px] flex flex-col items-center">
+
+              {/* TIME + WEATHER (NOW FUNCTIONAL) */}
+              <div className="w-80 h-20 bg-[#40513B] rounded-[50px]
+                flex items-center justify-center
+                shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]">
+
+                <p className="text-[#EDF1D6] text-sm font-semibold tracking-widest">
+                  {time.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+
+                  {" · "}
+
+                  {weather
+                    ? `${weather.temperature}°C · ${weather.weathercode}`
+                    : "Loading weather..."}
                 </p>
               </div>
-            )}
 
-            {/* 2. Plan Trip (Manual) */}
-            <div className="md:col-span-2 rounded-2xl bg-white p-6 shadow-sm border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                Plan Trip (Manual Trip Planning)
-              </h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Create your own custom trips by selecting destinations, dates, and preferences.
-              </p>
-              <button
-                type="button"
-                className="px-5 py-2.5 rounded-lg bg-[#40513B] text-white text-sm font-medium hover:bg-[#30422d] transition-all active:translate-y-0.5"
-                onClick={() => {
-                  router.push("/dashboard/planner");
-                }}
-              >
-                Start Planning
-              </button>
-            </div>
+             
+              {/* CALENDAR */}
+              <div className="relative w-80 h-96 mt-6 bg-[#EDF1D6] rounded-[50px]
+              shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+              flex flex-col items-center justify-center px-6">
 
-            {/* 3. My Trips */}
-            <div className="md:col-span-2 rounded-2xl bg-white p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  My Trips (Saved Planned Trips)
+                {/* TITLE */}
+                <h2 className="text-stone-700 text-xl font-semibold tracking-widest mb-4">
+                  Calendar
                 </h2>
-              </div>
-              <p className="text-sm text-gray-600 mb-4">
-                Your trips generated from manual planning and Nimnim Plan AI are saved here.
-              </p>
-              <div className="space-y-3">
-                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition">
-                  <p className="font-medium text-gray-800 text-sm">
-                    Beach Getaway – Cebu
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Created: Aug 10 · Manual Planning
-                  </p>
+
+                {/* WEEK LABELS */}
+                <div className="grid grid-cols-7 w-full text-center text-xs text-[#40513B] mb-3">
+                  {["S","M","T","W","T","F","S"].map((d, i) => (
+                    <span key={i}>{d}</span>
+                  ))}
                 </div>
-                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition">
-                  <p className="font-medium text-gray-800 text-sm">
-                    Nimnim AI Weekend – Baguio
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Created: Aug 8 · Nimnim Plan AI
-                  </p>
+
+                {/* DAYS GRID */}
+                <div className="grid grid-cols-7 gap-y-3 text-center text-black/50 text-sm w-full">
+                  {calendarDays.map((day, i) => {
+                    if (!day) return <div key={i}></div>;
+
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedDate(day)}
+                        className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center
+                        transition
+                        ${selectedDate === day ? "bg-[#40513B] text-white font-bold" : "hover:bg-gray-100"}`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
                 </div>
+
               </div>
+
+
+
             </div>
 
-            {/* 4. Nimnim Plan AI (placeholder) */}
-            <div className="md:col-span-1 rounded-2xl bg-gradient-to-br from-[#EDF1D6] to-[#D8E2C2] p-6 shadow-sm border border-gray-200 flex flex-col">
-              <h2 className="text-xl font-semibold text-[#40513B] mb-3">
-                Nimnim Plan AI
-              </h2>
-              <p className="text-sm text-gray-700 mb-4 flex-1">
-                Powered by your teammate’s AI‑driven trip planner. This is currently a placeholder.
-              </p>
-              <button
-                type="button"
-                className="px-5 py-2.5 rounded-lg bg-[#40513B] text-white text-sm font-medium hover:bg-[#30422d] transition-all active:translate-y-0.5"
-                onClick={() => {
-                  router.push("/dashboard/nimnim-ai");
-                }}
-              >
-                Try Nimnim Plan AI
-              </button>
-            </div>
           </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }
