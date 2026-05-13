@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import Header from "./components/Header";
 import "./globals.css";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html
       lang="en"

@@ -19,7 +19,7 @@ export default function Login({ onClose }: { onClose: () => void }) {
     if (error) {
       alert(error.message);
     } else {
-      router.push("/builder");
+      router.push("/dashboard");
       onClose();
     }
   };
@@ -30,7 +30,7 @@ export default function Login({ onClose }: { onClose: () => void }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/builder`, // landing after Google auth
+        redirectTo: `${window.location.origin}/dashboard`, // landing after Google auth
       },
     });
 
