@@ -7,6 +7,7 @@ module.exports = {
         playfair: ["var(--font-playfair-display)"],
         poppins: ["var(--font-poppins)"],
         sourceserif4: ["var(--font-source-serif-4)"],
+        georgia: ["Georgia", "serif"],
       },
     },
   },
