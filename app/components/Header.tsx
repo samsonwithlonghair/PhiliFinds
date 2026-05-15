@@ -12,7 +12,6 @@ const Header: React.FC = () => {
   const pathname = usePathname();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
 
  // Hide this header only on dashboard routes
   const showHeader = !pathname.startsWith("/dashboard");
@@ -56,71 +55,10 @@ const Header: React.FC = () => {
           Contact
           <span className="absolute left-0 -bottom-1.5 w-0 h-[2px] bg-[#40513B] transition-all duration-300 ease-in-out group-hover:w-full"></span>
         </Link>
-
-        <Link href="/itinerary-builder" className="relative group inline-block hover:text-[#2f3b2b] transition">
-          Plan Trip
-          <span className="absolute left-0 -bottom-1.5 w-0 h-[2px] bg-[#40513B] transition-all duration-300 ease-in-out group-hover:w-full"></span>
-        </Link>
-
-        <Link href="/settings" className="relative group inline-block hover:text-[#2f3b2b] transition">
-          Settings
-          <span className="absolute left-0 -bottom-1.5 w-0 h-[2px] bg-[#40513B] transition-all duration-300 ease-in-out group-hover:w-full"></span>
-        </Link>
       </nav>
 
       {/* Actions */}
       <div className="flex items-center gap-3">
-        {/* User Menu */}
-        <div className="relative">
-          <button 
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            className="px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#7C9273] rounded-full flex items-center justify-center text-xs font-medium">
-              JD
-            </div>
-            <span className="text-sm font-medium">John Doe</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
-          
-          {/* Dropdown Menu */}
-          {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg p-2 z-50">
-              <Link 
-                href="/itinerary-builder" 
-                className="block w-full text-left px-4 py-2 text-[#2C4A3E] hover:bg-gray-100 rounded-lg transition"
-                onClick={() => setShowUserMenu(false)}
-              >
-                Plan Trip
-              </Link>
-              <Link 
-                href="/settings" 
-                className="block w-full text-left px-4 py-2 text-[#2C4A3E] hover:bg-gray-100 rounded-lg transition"
-                onClick={() => setShowUserMenu(false)}
-              >
-                Settings
-              </Link>
-              <Link 
-                href="/profile" 
-                className="block w-full text-left px-4 py-2 text-[#2C4A3E] hover:bg-gray-100 rounded-lg transition"
-                onClick={() => setShowUserMenu(false)}
-              >
-                Profile
-              </Link>
-              <button 
-                className="block w-full text-left px-4 py-2 text-[#2C4A3E] hover:bg-gray-100 rounded-lg transition"
-                onClick={() => {
-                  setShowUserMenu(false);
-                  console.log("Logout clicked");
-                }}
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Get Started */}
         
           <button 
