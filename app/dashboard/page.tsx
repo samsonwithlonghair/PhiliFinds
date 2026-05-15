@@ -169,14 +169,15 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
           <div className="flex flex-col xl:flex-row gap-10 justify-center items-center xl:items-start">
 
             {/* ================= LEFT SIDE ================= */}
-            <div className="relative w-full max-w-[697px] h-[954px]">
+            <div className="relative w-full max-w-[697px] h-[954px]  ">
 
               {/* PROFILE IMAGE */}
               <img
                 src={profile?.avatar_url || "/dashboard-profile.png"}
                 alt="profile"
                 className="absolute w-[261px] h-[393px] left-0 top-0 rounded-[50px]
-                object-cover shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]"
+                object-cover cursor-pointer shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+                transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] active:translate-y-[2px]"
               />
 
               {/* USER OVERLAY */}
@@ -186,102 +187,105 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
               </p>
 
               {/* TRIP OVERVIEW */}
-              <div className="absolute w-56 h-52 left-[283px] top-0 bg-[#EDF1D6] rounded-[50px]
-              shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]" />
+              <div
+                className="absolute w-56 h-52 left-[283px] top-0 bg-[#EDF1D6] rounded-[50px]
+                shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+                cursor-pointer transition-all duration-300
+                hover:-translate-y-1 hover:shadow-2xl
+                active:scale-[0.98] active:translate-y-[2px]"
 
-              <h2 className="absolute left-[319px] top-[15px] text-[#40513B] text-xl font-semibold tracking-widest">
-                Trip Overview
-              </h2>
+              >
+                {/* TITLE */}
+                <h2 className="absolute top-4 left-6 text-[#40513B] text-xl font-semibold tracking-widest">
+                  Trip Overview
+                </h2>
 
-              {/* REAL DONUT CHART */}
-              <div className="absolute w-36 h-36 left-[325px] top-[39px]">
+                {/* DONUT CHART */}
+                <div className="absolute inset-0 flex items-center justify-center pt-6">
 
-                {/* DONUT SVG */}
-                <svg
-                  viewBox="0 0 160 160"
-                  className="w-full h-full -rotate-90"
-                >
+                  <div className="relative w-36 h-36">
 
-                  {/* BACKGROUND RING */}
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="58"
-                    fill="none"
-                    stroke="#EDF1D6"
-                    strokeWidth="16"
-                  />
+                    <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
 
-                  {/* COMPLETED */}
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="58"
-                    fill="none"
-                    stroke="#40513B"
-                    strokeWidth="16"
-                    strokeLinecap="round"
-                    strokeDasharray={`${completedPct * 3.64} 364`}
-                    strokeDashoffset="0"
-                  />
+                      {/* BACKGROUND RING */}
+                      <circle
+                        cx="80"
+                        cy="80"
+                        r="58"
+                        fill="none"
+                        stroke="#DDE7D6"
+                        strokeWidth="16"
+                      />
 
-                  {/* ONGOING */}
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="58"
-                    fill="none"
-                    stroke="#9DC08B"
-                    strokeWidth="16"
-                    strokeLinecap="round"
-                    strokeDasharray={`${ongoingPct * 3.64} 364`}
-                    strokeDashoffset={`-${completedPct * 3.64}`}
-                  />
+                      {/* COMPLETED */}
+                      <circle
+                        cx="80"
+                        cy="80"
+                        r="58"
+                        fill="none"
+                        stroke="#40513B"
+                        strokeWidth="16"
+                        strokeLinecap="round"
+                        strokeDasharray={`${completedPct * 3.64} 364`}
+                        strokeDashoffset="0"
+                      />
 
-                  {/* UPCOMING */}
-                  <circle
-                    cx="80"
-                    cy="80"
-                    r="58"
-                    fill="none"
-                    stroke="#609966"
-                    strokeWidth="16"
-                    strokeLinecap="round"
-                    strokeDasharray={`${upcomingPct * 3.64} 364`}
-                    strokeDashoffset={`-${(completedPct + ongoingPct) * 3.64}`}
-                  />
+                      {/* ONGOING */}
+                      <circle
+                        cx="80"
+                        cy="80"
+                        r="58"
+                        fill="none"
+                        stroke="#9DC08B"
+                        strokeWidth="16"
+                        strokeLinecap="round"
+                        strokeDasharray={`${ongoingPct * 3.64} 364`}
+                        strokeDashoffset={`-${completedPct * 3.64}`}
+                      />
 
-                </svg>
+                      {/* UPCOMING */}
+                      <circle
+                        cx="80"
+                        cy="80"
+                        r="58"
+                        fill="none"
+                        stroke="#609966"
+                        strokeWidth="16"
+                        strokeLinecap="round"
+                        strokeDasharray={`${upcomingPct * 3.64} 364`}
+                        strokeDashoffset={`-${(completedPct + ongoingPct) * 3.64}`}
+                      />
 
-                {/* CENTER CIRCLE */}
-                <div className="absolute inset-[24px] bg-[#EDF1D6] rounded-full flex flex-col items-center justify-center">
+                    </svg>
 
-                  <span className="text-[#40513B] text-xl font-semibold tracking-widest">
-                    {summary.total}
-                  </span>
+                    {/* CENTER TEXT */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-[#40513B] text-xl font-semibold tracking-widest">
+                        {summary.total}
+                      </span>
+                      <span className="text-black/30 text-[10px] font-semibold">
+                        Total Trips
+                      </span>
+                    </div>
 
-                  <span className="text-black/30 text-[10px] font-semibold tracking-wide">
-                    Total Trips
-                  </span>
-
+                  </div>
                 </div>
-
               </div>
 
               {/* UPCOMING CARD */}
-              <div className="absolute w-56 h-40 left-[283px] top-[228px] bg-white rounded-[50px]
-              shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
-              flex flex-col items-center justify-center gap-2 text-center">
+              <div className="absolute w-56 h-40 left-[283px] top-[228px] bg-[#40513B] rounded-[50px]
+                cursor-pointer shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)] flex flex-col items-center justify-center gap-2 text-center
+                transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] active:translate-y-[2px]">
 
                 {/* TITLE */}
-                <h2 className="text-[#40513B] text-xl font-semibold tracking-widest">
+                <h2 className="text-[#EDF1D6] text-xl font-semibold tracking-widest">
                   Upcoming Trips
                 </h2>
 
                 {/* ICON */}
                 <div className="w-20 h-20 flex items-center justify-center">
                   <img
-                    src="/calendar.svg"
+                    src="/calendar-icon.svg"
                     alt="calendar icon"
                     className="w-full h-full object-contain"
                   />
@@ -290,25 +294,25 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
               </div>
 
               {/* NIMNIM */}
-              <div className="absolute w-[513px] h-36 left-0 top-[415px]">
-                <div className="absolute w-[513px] h-36 bg-white rounded-[50px]
-                shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]" />
+              <div className="absolute w-[513px] h-36 left-0 top-[415px] rounded-[50px] cursor-pointer shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+                transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] active:translate-y-[2px]">
+                
 
                 <img
                   src="/nimnim.svg"
                   className="absolute w-28 h-28 left-[34px] top-[19px] rounded-[20px]"
                 />
 
-                <div className="absolute left-[174px] top-[52px] flex items-center gap-2">
+                <div className="absolute left-[164px] top-[52px] flex items-center gap-2">
                   
                
                   <img
                     src="/shimmer.svg"
                     alt="shimmer icon"
-                    className="w-7 h-7 object-contain"
+                    className="w-8 h-8 object-contain"
                   />
 
-                  <h2 className="text-[#40513B] text-3xl font-medium tracking-[3px] font-sourceserif4">
+                  <h2 className="text-[#40513B] text-3xl font-semibold tracking-[3px] ">
                     Let Nimnim Plan
                   </h2>
                 </div>
@@ -324,13 +328,13 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
                 flex items-center justify-center
                 shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]">
 
-                <p className="text-[#EDF1D6] text-sm font-semibold tracking-widest">
+                <p className="text-[#EDF1D6] text-xl font-semibold tracking-widest">
                   {time.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
 
-                  {" · "}
+                  {" | "}
 
                   {weather
                     ? `${weather.temperature}°C · ${weather.weathercode}`
@@ -367,7 +371,7 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
                         onClick={() => setSelectedDate(day)}
                         className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center
                         transition
-                        ${selectedDate === day ? "bg-[#40513B] text-white font-bold" : "hover:bg-gray-100"}`}
+                        ${selectedDate === day ? "bg-[#40513B] text-white font-bold" : "hover:bg-[#40513B]/20"}`}
                       >
                         {day}
                       </button>
