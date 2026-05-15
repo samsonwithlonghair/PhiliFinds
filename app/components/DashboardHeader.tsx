@@ -13,7 +13,9 @@ export default function DashboardHeader() {
   const [user, setUser] = useState<any | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
 
-  const [isOpen, setIsOpen] = useState(false);
+  // Separate dropdown states
+  const [homeDropdownOpen, setHomeDropdownOpen] = useState(false);
+  const [menuDropdownOpen, setMenuDropdownOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -90,7 +92,8 @@ export default function DashboardHeader() {
         menuRef.current &&
         !menuRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        setHomeDropdownOpen(false);
+        setMenuDropdownOpen(false);
       }
     };
 
@@ -126,18 +129,51 @@ export default function DashboardHeader() {
 
       <div className="flex items-center gap-2" ref={menuRef}>
 
-        {/* HOME ICON */}
-        <Link
-          href="/dashboard"
-          className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#EDF1D6] transition"
-        >
-          <img
-            src="/home-icon.svg"
-            alt="Home"
-            width={28}
-            height={28}
-          />
-        </Link>
+        {/* HOME ICON DROPDOWN */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              setHomeDropdownOpen((prev) => !prev);
+              setMenuDropdownOpen(false);
+            }}
+            className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#EDF1D6] transition"
+            aria-haspopup="true"
+            aria-expanded={homeDropdownOpen}
+          >
+            <img
+              src="/home-icon.svg"
+              alt="Home"
+              width={28}
+              height={28}
+            />
+          </button>
+          {homeDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg z-50">
+              <Link
+                href="/dashboard"
+                onClick={() => setHomeDropdownOpen(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Dashboard Home
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setHomeDropdownOpen(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                About Us
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setHomeDropdownOpen(false)}
+                className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Contact Us
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* PROFILE AVATAR */}
         <Link
@@ -160,10 +196,12 @@ export default function DashboardHeader() {
 
         {/* MENU */}
         <div className="relative">
-
           <button
             type="button"
-            onClick={() => setIsOpen((prev) => !prev)}
+            onClick={() => {
+              setMenuDropdownOpen((prev) => !prev);
+              setHomeDropdownOpen(false);
+            }}
             className="rounded-full w-12 h-12 flex items-center justify-center hover:bg-[#EDF1D6] transition"
           >
             <Image
@@ -173,36 +211,30 @@ export default function DashboardHeader() {
               height={28}
             />
           </button>
-
-          {isOpen && (
+          {menuDropdownOpen && (
             <div className="absolute right-0 mt-3 w-44 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg z-50">
-
               <Link
                 href="/profile"
-                onClick={() => setIsOpen(false)}
+                onClick={() => setMenuDropdownOpen(false)}
                 className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
               >
                 Profile
               </Link>
-
               <Link
                 href="/dashboard/settings"
-                onClick={() => setIsOpen(false)}
+                onClick={() => setMenuDropdownOpen(false)}
                 className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
               >
                 Settings
               </Link>
-
               <button
                 onClick={handleLogout}
                 className="block w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-100"
               >
                 Log out
               </button>
-
             </div>
           )}
-
         </div>
       </div>
     </header>
