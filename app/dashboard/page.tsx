@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import DashboardNavbar from "../components/DashboardHeader";
 import { supabase } from "@/lib/supabaseClient";
@@ -294,7 +295,9 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
               </div>
 
               {/* NIMNIM */}
-              <div className="absolute w-[513px] h-36 left-0 top-[415px] rounded-[50px] cursor-pointer shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
+              <Link 
+              href="/builder"
+              className="absolute w-[513px] h-36 left-0 top-[415px] rounded-[50px] cursor-pointer shadow-[0.5px_0.5px_1px_rgba(0,0,0,0.25),-0.5px_-0.5px_1px_rgba(0,0,0,0.25)]
                 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] active:translate-y-[2px]">
                 
 
@@ -316,7 +319,7 @@ const upcomingPct = (summary.upcoming / summary.total) * 100;
                     Let Nimnim Plan
                   </h2>
                 </div>
-              </div>
+              </Link>
 
             </div>
 
